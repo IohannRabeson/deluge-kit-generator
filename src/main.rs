@@ -67,7 +67,7 @@ enum Commands {
     FromRegions {
         /// The path of the source sample file.
         #[clap(parse(from_os_str), value_hint = ValueHint::FilePath)]
-        source_sample_path: PathBuf,
+        source_sample_paths: Vec<PathBuf>,
 
         /// Specify the directory where the sample is copied.
         /// If the directory specified is relative the actual path will be relative to the SAMPLES directory at the root of the card.
@@ -84,23 +84,28 @@ fn main() -> Result<(), Error> {
     // Generate a kit
     match cli.command {
         Commands::FromRegions { 
-            source_sample_path ,
+            source_sample_paths ,
             destination_sample_directory,
         } => {
-            let destination_sample_path = get_sample_path(&source_sample_path, &destination_sample_directory, card)?;
-            let cue_points = read_cue_points(&source_sample_path)?;
-            let kit = new_kit_from_regions(&cue_points, card.sample_path(&destination_sample_path)?)?;
-            let kit_path = card.get_next_standard_patch_path(deluge::PatchType::Kit)?;
-
-            // Write the kit as file
-            println!("Writing kit '{}' with {} row{}", &kit_path.to_string_lossy(), kit.rows.len(), if kit.rows.len() > 1 { "s" } else { "" });
-
-            deluge::write_kit_to_file(&kit, &kit_path)?;
-
-            copy_sample_if_needed(&source_sample_path, &destination_sample_path, cli.force)?;
+            for source_sample_path in &source_sample_paths {
+                if let Err(error) = generate_kit_from_regions(source_sample_path, &destination_sample_directory, card, cli.force) {
+                    println!("Error processing '{}': {}", source_sample_path.to_string_lossy(), error);
+                }
+            }
         },
     };
 
+    Ok(())
+}
+
+fn generate_kit_from_regions(source_sample_path: &PathBuf, destination_sample_directory: &PathBuf, card: &Card<LocalFileSystem>, replace_existing_samples: bool) -> Result<(), Error> {
+    let destination_sample_path = get_sample_path(&source_sample_path, destination_sample_directory, card)?;
+    let cue_points = read_cue_points(&source_sample_path)?;
+    let kit = new_kit_from_regions(&cue_points, card.sample_path(&destination_sample_path)?)?;
+    let kit_path = card.get_next_standard_patch_path(deluge::PatchType::Kit)?;
+    println!("Writing kit '{}' with {} row{}", &kit_path.to_string_lossy(), kit.rows.len(), if kit.rows.len() > 1 { "s" } else { "" });
+    deluge::write_kit_to_file(&kit, &kit_path)?;
+    copy_sample_if_needed(&source_sample_path, &destination_sample_path, replace_existing_samples)?;
     Ok(())
 }
 
