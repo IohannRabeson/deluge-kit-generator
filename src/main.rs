@@ -34,9 +34,6 @@ enum Error {
 
     #[error("'{0}' is not a file")]
     NotAFile(PathBuf),
-
-    #[error("'{0}' is not a directory")]
-    NotADirectory(PathBuf),
 }
 
 #[derive(Parser)]
@@ -171,9 +168,6 @@ fn new_kit_from_regions(cue_points: &Vec<Cue>, destination_sample_path: SamplePa
 fn get_sample_path(original_sample_path: &Path, destination_sample_directory: &Path, card: &Card<LocalFileSystem>) -> Result<PathBuf, Error> {
     if !original_sample_path.is_file() {
         return Err(Error::NotAFile(original_sample_path.to_path_buf()))
-    }
-    if !destination_sample_directory.is_dir() {
-        return Err(Error::NotADirectory(destination_sample_directory.to_path_buf()))
     }
     
     let mut path = if destination_sample_directory.is_absolute() {
