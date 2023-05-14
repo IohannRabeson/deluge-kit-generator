@@ -44,11 +44,7 @@ pub enum Error {
 #[clap(author = "Iohann R.")]
 #[clap(version)]
 #[clap(about = "Generate kit patches for Synthstrom Deluge")]
-#[clap(
-    long_about = r#"This tool produces a kit based on a sample and his regions."
-                    "Currently I only tested to create regions in samples using Ocenaudio."
-                    "If no regions are specified the tool does nothing."#
-)]
+#[clap(long_about)]
 struct Cli {
     /// The path to the root directory of the Deluge card where the kit will be created.
     /// Samples are copied into the card as well if needed.
@@ -69,7 +65,7 @@ enum Commands {
     /// sample is copied to the specified card into the directory '<root card>/SAMPLES/KITS'.{n}If a
     /// file with the same name already exists in the SAMPLES directory the sample is not copied again, excepted if the flag --force is specified.
     FromRegions {
-        /// The path of the source sample file.
+        /// The paths of the source samples files.
         #[clap(value_hint = ValueHint::FilePath)]
         source_sample_paths: Vec<PathBuf>,
 

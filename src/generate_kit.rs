@@ -20,9 +20,11 @@ pub fn generate_kit_from_regions(
         let sample_path_in_card = card.sample_path(&sample_destination_file_path)?;
         let cue_points = read_cue_points(source_sample_path)?;
 
-        add_regions_to_kit(&mut kit_builder, &cue_points, sample_path_in_card)?;
+        if !cue_points.is_empty() {
+            add_regions_to_kit(&mut kit_builder, &cue_points, sample_path_in_card)?;
 
-        sample_file_path_to_copy.push((source_sample_path, sample_destination_file_path.clone()));
+            sample_file_path_to_copy.push((source_sample_path, sample_destination_file_path.clone()));
+        }
     }
 
     let kit = kit_builder.build().map_err(Error::KitBuilding)?;
