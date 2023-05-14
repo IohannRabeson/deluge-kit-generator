@@ -66,9 +66,8 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Generates a kit using the regions specified by the sample meta data.{n}The original
-    /// sample is copied to the specified card into the directory '<root card>/SAMPLES/KITS'.
-    /// If a file with the same name already exists in the SAMPLES directory the command is
-    /// aborted, excepted if the flag --force is specified.
+    /// sample is copied to the specified card into the directory '<root card>/SAMPLES/KITS'.{n}If a
+    /// file with the same name already exists in the SAMPLES directory the sample is not copied again, excepted if the flag --force is specified.
     FromRegions {
         /// The path of the source sample file.
         #[clap(value_hint = ValueHint::FilePath)]
